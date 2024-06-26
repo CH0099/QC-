@@ -98,11 +98,11 @@
         .button-group button {
             margin: 0;
         }
-        .button-group button:nth-child(2) {
-            background-color: var(--danger-color);
+        #scanOrderNumberBtn {
+            background-color: var(--warning-color);
         }
         .button-group button:nth-child(3) {
-            background-color: var(--warning-color);
+            background-color: var(--danger-color);
         }
         .button-group button:nth-child(4) {
             background-color: var(--secondary-color);
@@ -118,6 +118,7 @@
         <div id="scanner"></div>
         <div id="scannedCodes"></div>
         <div class="button-group">
+            <button id="scanOrderNumberBtn" onclick="switchToOrderNumberMode()">掃描單號</button>
             <button onclick="completeOrder()">完成</button>
             <button onclick="undoLastScan()">取消上一個掃瞄</button>
             <button onclick="exitOrder()">退出單號</button>
@@ -159,8 +160,19 @@
         function setOrderNumber(number) {
             currentOrderNumber = number;
             document.getElementById('currentOrderNumber').innerText = `當前單號: ${currentOrderNumber}`;
+            switchToProductMode();
+        }
+
+        function switchToOrderNumberMode() {
+            isScanningOrderNumber = true;
+            document.getElementById('scanModeDisplay').innerText = '模式：掃描單號';
+            document.getElementById('scanOrderNumberBtn').style.backgroundColor = var(--primary-color);
+        }
+
+        function switchToProductMode() {
             isScanningOrderNumber = false;
             document.getElementById('scanModeDisplay').innerText = '模式：掃描商品';
+            document.getElementById('scanOrderNumberBtn').style.backgroundColor = var(--warning-color);
         }
 
         function completeOrder() {
@@ -187,8 +199,7 @@
             document.getElementById('lastScannedCode').innerText = '';
             scannedCodes = [];
             updateScannedCodesDisplay();
-            isScanningOrderNumber = true;
-            document.getElementById('scanModeDisplay').innerText = '模式：掃描單號';
+            switchToOrderNumberMode();
         }
 
         function copyToClipboard() {
