@@ -121,7 +121,7 @@
             <button onclick="toggleScanMode()">切換模式</button>
             <button id="completeOrCopyBtn" onclick="completeOrCopy()">完成</button>
             <button onclick="undoLastScan()">取消上一筆</button>
-            <button onclick="saveToGoogleSheets()">儲存資料</button>
+            <button onclick="openGoogleSheets()">儲存資料</button>
         </div>
     </div>
 
@@ -221,33 +221,8 @@
             }
         }
 
-        function saveToGoogleSheets() {
-            if (!currentOrderNumber || scannedCodes.length === 0) {
-                alert('沒有數據可以儲存');
-                return;
-            }
-
-            const data = {
-                orderNumber: currentOrderNumber,
-                barcodes: scannedCodes
-            };
-
-            fetch('https://script.google.com/macros/s/AKfycbyl5-TZ5y6kM0KoE3x0IRnK1ZvBc1M2rD4U3cB2Z6dX/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('數據已成功儲存到 Google Sheets。');
-                console.log('成功儲存到 Google Sheets: ', data);
-            })
-            .catch((error) => {
-                console.error('儲存到 Google Sheets 時發生錯誤: ', error);
-                alert('儲存過程中發生錯誤。');
-            });
+        function openGoogleSheets() {
+            window.open('https://docs.google.com/spreadsheets/d/1ab4vj6tQ46VXq0nImEVCJbniFm6HFVaidqEj2wGyWQM/edit?usp=sharing', '_blank');
         }
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
