@@ -119,10 +119,9 @@
         <div id="scannedCodes"></div>
         <div class="button-group">
             <button onclick="toggleScanMode()">切換模式</button>
-            <button onclick="completeOrder()">完成</button>
+            <button id="completeOrCopyBtn" onclick="completeOrCopy()">完成</button>
             <button onclick="undoLastScan()">取消上一個掃瞄</button>
             <button onclick="exitOrder()">退出單號</button>
-            <button onclick="copyToClipboard()">複製數據</button>
             <button onclick="openGoogleSheets()">打開Google Sheets</button>
         </div>
     </div>
@@ -146,14 +145,18 @@
                 updateLastScannedCode(decodedText);
             }
 
-            alert(`掃描成功: ${decodedText}`);
-            setTimeout(() => {
-                scannerPaused = false;
-            }, 3000);
+            showAlertAndResume(`掃描成功: ${decodedText}`);
         }
 
         function onScanFailure(error) {
             console.warn(`掃描錯誤: ${error}`);
+        }
+
+        function showAlertAndResume(message) {
+            alert(message);
+            setTimeout(() => {
+                scannerPaused = false;
+            }, 3000);
         }
 
         function updateScannedCodesDisplay() {
@@ -178,12 +181,35 @@
             document.getElementById('scanModeDisplay').innerText = isScanningOrderNumber ? '模式：掃描單號' : '模式：掃描商品';
         }
 
+        function completeOrCopy() {
+            if (document.getElementById('completeOrCopyBtn').innerText === '完成') {
+                completeOrder();
+            } else {
+                copyToClipboard();
+            }
+        }
+
         function completeOrder() {
             if (!currentOrderNumber) {
                 alert('請先掃描單號');
                 return;
             }
             alert(`單號 ${currentOrderNumber} 完成，共掃描 ${scannedCodes.length} 個條碼。`);
+        }
+
+        function copyToClipboard() {
+            if (!currentOrderNumber || scannedCodes.length === 0) {
+                alert('沒有數據可以複製');
+                return;
+            }
+
+            let copyText = scannedCodes.map(code => `${currentOrderNumber}\t${code}`).join('\n');
+
+            navigator.clipboard.writeText(copyText).then(function() {
+                alert('數據已複製到剪貼板。請在Google Sheets中選擇A1單元格後粘貼。');
+            }, function(err) {
+                console.error('無法複製數據: ', err);
+            });
         }
 
         function undoLastScan() {
@@ -204,21 +230,6 @@
             updateScannedCodesDisplay();
             isScanningOrderNumber = true;
             document.getElementById('scanModeDisplay').innerText = '模式：掃描單號';
-        }
-
-        function copyToClipboard() {
-            if (!currentOrderNumber || scannedCodes.length === 0) {
-                alert('沒有數據可以複製');
-                return;
-            }
-
-            let copyText = scannedCodes.map(code => `${currentOrderNumber}\t${code}`).join('\n');
-
-            navigator.clipboard.writeText(copyText).then(function() {
-                alert('數據已複製到剪貼板。請在Google Sheets中選擇A1單元格後粘貼。');
-            }, function(err) {
-                console.error('無法複製數據: ', err);
-            });
         }
 
         function openGoogleSheets() {
