@@ -120,9 +120,8 @@
         <div class="button-group">
             <button onclick="toggleScanMode()">切換模式</button>
             <button id="completeOrCopyBtn" onclick="completeOrCopy()">完成</button>
-            <button onclick="undoLastScan()">取消上一個掃瞄</button>
-            <button onclick="exitOrder()">退出單號</button>
-            <button onclick="openGoogleSheets()">打開Google Sheets</button>
+            <button onclick="undoLastScan()">取消上一筆</button>
+            <button onclick="saveToGoogleSheets()">儲存資料</button>
         </div>
     </div>
 
@@ -222,18 +221,33 @@
             }
         }
 
-        function exitOrder() {
-            currentOrderNumber = '';
-            document.getElementById('currentOrderNumber').innerText = '';
-            document.getElementById('lastScannedCode').innerText = '';
-            scannedCodes = [];
-            updateScannedCodesDisplay();
-            isScanningOrderNumber = true;
-            document.getElementById('scanModeDisplay').innerText = '模式：掃描單號';
-        }
+        function saveToGoogleSheets() {
+            if (!currentOrderNumber || scannedCodes.length === 0) {
+                alert('沒有數據可以儲存');
+                return;
+            }
 
-        function openGoogleSheets() {
-            window.open('https://docs.google.com/spreadsheets/d/1ab4vj6tQ46VXq0nImEVCJbniFm6HFVaidqEj2wGyWQM/edit?usp=drive_link', '_blank');
+            const data = {
+                orderNumber: currentOrderNumber,
+                barcodes: scannedCodes
+            };
+
+            fetch('https://script.google.com/macros/s/AKfycbyl5-TZ5y6kM0KoE3x0IRnK1ZvBc1M2rD4U3cB2Z6dX/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('數據已成功儲存到 Google Sheets。');
+                console.log('成功儲存到 Google Sheets: ', data);
+            })
+            .catch((error) => {
+                console.error('儲存到 Google Sheets 時發生錯誤: ', error);
+                alert('儲存過程中發生錯誤。');
+            });
         }
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
