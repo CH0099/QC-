@@ -132,17 +132,24 @@
         let scannedCodes = [];
         let currentOrderNumber = '';
         let isScanningOrderNumber = true;
+        let scannerPaused = false;
 
         function onScanSuccess(decodedText, decodedResult) {
-            if (confirm(`掃描到條碼: ${decodedText}\n是否記錄?`)) {
-                if (isScanningOrderNumber) {
-                    setOrderNumber(decodedText);
-                } else {
-                    scannedCodes.push(decodedText);
-                    updateScannedCodesDisplay();
-                    updateLastScannedCode(decodedText);
-                }
+            if (scannerPaused) return;
+            scannerPaused = true;
+
+            if (isScanningOrderNumber) {
+                setOrderNumber(decodedText);
+            } else {
+                scannedCodes.push(decodedText);
+                updateScannedCodesDisplay();
+                updateLastScannedCode(decodedText);
             }
+
+            alert(`掃描成功: ${decodedText}`);
+            setTimeout(() => {
+                scannerPaused = false;
+            }, 3000);
         }
 
         function onScanFailure(error) {
