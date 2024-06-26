@@ -5,100 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品條碼掃描器</title>
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
             margin: 0;
             padding: 20px;
-            color: #333;
+            color: var(--dark-color);
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #2c3e50;
+        h1, h2 {
+            color: var(--primary-color);
             text-align: center;
+            margin-bottom: 20px;
         }
         #scanner {
             width: 100%;
             max-width: 300px;
             margin: 20px auto;
-        }
-        input, button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        input {
-            font-size: 16px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            overflow: hidden;
         }
         button {
-            background-color: #3498db;
-            color: white;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
             border: none;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: var(--primary-color);
+            color: white;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s;
+            font-weight: bold;
         }
         button:hover {
             background-color: #2980b9;
         }
+        button:active {
+            transform: scale(0.98);
+        }
         #scannedCodes {
             margin-top: 20px;
-            text-align: left;
-            background-color: #ecf0f1;
-            padding: 10px;
-            border-radius: 4px;
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
             max-height: 200px;
             overflow-y: auto;
         }
         #scannedCodes h3 {
             margin-top: 0;
-            color: #2c3e50;
+            color: var(--dark-color);
         }
         #scannedCodes p {
             margin: 5px 0;
+            padding: 5px;
+            background-color: white;
+            border-radius: 4px;
         }
         #currentOrderNumber, #lastScannedCode {
             font-weight: bold;
             font-size: 18px;
-            margin-bottom: 15px;
+            margin: 15px 0;
             text-align: center;
+            padding: 10px;
+            background-color: var(--light-color);
+            border-radius: 6px;
         }
         .button-group {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
         }
         .button-group button {
-            flex: 1 0 30%;
-            margin: 5px;
+            margin: 0;
+        }
+        .button-group button:nth-child(2) {
+            background-color: var(--danger-color);
+        }
+        .button-group button:nth-child(3) {
+            background-color: var(--warning-color);
+        }
+        .button-group button:nth-child(4) {
+            background-color: var(--secondary-color);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>商品條碼掃描器</h1>
-        <input type="text" id="orderNumber" placeholder="輸入單號">
-        <button onclick="setOrderNumber()">設置單號</button>
+        <h2 id="scanModeDisplay">模式：掃描單號</h2>
         <div id="currentOrderNumber"></div>
         <div id="lastScannedCode"></div>
         <div id="scanner"></div>
         <div id="scannedCodes"></div>
         <div class="button-group">
             <button onclick="completeOrder()">完成</button>
-            <button onclick="undoLastScan()" style="background-color: #e74c3c;">取消上一個掃瞄內容</button>
-            <button onclick="exitOrder()" style="background-color: #95a5a6;">退出單號</button>
-            <button onclick="copyToClipboard()" style="background-color: #27ae60;">複製數據</button>
-            <button onclick="openGoogleSheets()" style="background-color: #f39c12;">打開Google Sheets</button>
+            <button onclick="undoLastScan()">取消上一個掃瞄</button>
+            <button onclick="exitOrder()">退出單號</button>
+            <button onclick="copyToClipboard()">複製數據</button>
+            <button onclick="openGoogleSheets()">打開Google Sheets</button>
         </div>
     </div>
 
@@ -106,11 +130,16 @@
     <script>
         let scannedCodes = [];
         let currentOrderNumber = '';
+        let isScanningOrderNumber = true;
 
         function onScanSuccess(decodedText, decodedResult) {
-            scannedCodes.push(decodedText);
-            updateScannedCodesDisplay();
-            updateLastScannedCode(decodedText);
+            if (isScanningOrderNumber) {
+                setOrderNumber(decodedText);
+            } else {
+                scannedCodes.push(decodedText);
+                updateScannedCodesDisplay();
+                updateLastScannedCode(decodedText);
+            }
         }
 
         function onScanFailure(error) {
@@ -127,15 +156,16 @@
             document.getElementById('lastScannedCode').innerText = `最後掃描的條碼: ${code}`;
         }
 
-        function setOrderNumber() {
-            currentOrderNumber = document.getElementById('orderNumber').value;
+        function setOrderNumber(number) {
+            currentOrderNumber = number;
             document.getElementById('currentOrderNumber').innerText = `當前單號: ${currentOrderNumber}`;
-            document.getElementById('orderNumber').value = '';
+            isScanningOrderNumber = false;
+            document.getElementById('scanModeDisplay').innerText = '模式：掃描商品';
         }
 
         function completeOrder() {
             if (!currentOrderNumber) {
-                alert('請先設置單號');
+                alert('請先掃描單號');
                 return;
             }
             alert(`單號 ${currentOrderNumber} 完成，共掃描 ${scannedCodes.length} 個條碼。`);
@@ -154,10 +184,11 @@
         function exitOrder() {
             currentOrderNumber = '';
             document.getElementById('currentOrderNumber').innerText = '';
-            document.getElementById('orderNumber').value = '';
             document.getElementById('lastScannedCode').innerText = '';
             scannedCodes = [];
             updateScannedCodesDisplay();
+            isScanningOrderNumber = true;
+            document.getElementById('scanModeDisplay').innerText = '模式：掃描單號';
         }
 
         function copyToClipboard() {
