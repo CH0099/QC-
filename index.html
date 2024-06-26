@@ -122,7 +122,7 @@
             <button id="completeOrCopyBtn" onclick="completeOrCopy()">完成</button>
             <button onclick="undoLastScan()">取消上一筆</button>
             <button onclick="copyToClipboard()">複制到剪貼板</button>
-            <button onclick="openGoogleSheet()">打開檔案</button>
+            <button onclick="openForm()">打開檔案</button>
         </div>
     </div>
 
@@ -222,8 +222,8 @@
             }
         }
 
-        function openGoogleSheet() {
-            window.open('https://docs.google.com/spreadsheets/d/1ab4vj6tQ46VXq0nImEVCJbniFm6HFVaidqEj2wGyWQM/edit?usp=sharing', '_blank');
+        function openForm() {
+            window.open('https://forms.gle/LNUXwFN9echb1TZg8', '_blank');
         }
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
