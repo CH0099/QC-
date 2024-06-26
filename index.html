@@ -57,6 +57,8 @@
             background-color: #ecf0f1;
             padding: 10px;
             border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
         }
         #scannedCodes h3 {
             margin-top: 0;
@@ -65,7 +67,7 @@
         #scannedCodes p {
             margin: 5px 0;
         }
-        #currentOrderNumber {
+        #currentOrderNumber, #lastScannedCode {
             font-weight: bold;
             font-size: 18px;
             margin-bottom: 15px;
@@ -79,6 +81,7 @@
         <input type="text" id="orderNumber" placeholder="輸入單號">
         <button onclick="setOrderNumber()">設置單號</button>
         <div id="currentOrderNumber"></div>
+        <div id="lastScannedCode"></div>
         <div id="scanner"></div>
         <div id="scannedCodes"></div>
         <button onclick="completeOrder()">完成</button>
@@ -94,6 +97,7 @@
         function onScanSuccess(decodedText, decodedResult) {
             scannedCodes.push(decodedText);
             updateScannedCodesDisplay();
+            updateLastScannedCode(decodedText);
         }
 
         function onScanFailure(error) {
@@ -104,6 +108,10 @@
             const display = document.getElementById('scannedCodes');
             display.innerHTML = '<h3>已掃瞄條碼:</h3>' + 
                 scannedCodes.map((code, index) => `<p>${index + 1}. ${code}</p>`).join('');
+        }
+
+        function updateLastScannedCode(code) {
+            document.getElementById('lastScannedCode').innerText = `最後掃描的條碼: ${code}`;
         }
 
         function setOrderNumber() {
@@ -124,6 +132,7 @@
             if (scannedCodes.length > 0) {
                 scannedCodes.pop();
                 updateScannedCodesDisplay();
+                updateLastScannedCode(scannedCodes.length > 0 ? scannedCodes[scannedCodes.length - 1] : '無');
             } else {
                 alert('沒有可取消的掃瞄內容');
             }
@@ -133,6 +142,7 @@
             currentOrderNumber = '';
             document.getElementById('currentOrderNumber').innerText = '';
             document.getElementById('orderNumber').value = '';
+            document.getElementById('lastScannedCode').innerText = '';
             scannedCodes = [];
             updateScannedCodesDisplay();
         }
