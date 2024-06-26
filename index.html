@@ -222,34 +222,35 @@
             }
         }
 
-        function saveToGoogleSheets() {
-            if (!currentOrderNumber || scannedCodes.length === 0) {
-                alert('沒有數據可以儲存');
-                return;
-            }
+function saveToGoogleSheets() {
+    if (!currentOrderNumber || scannedCodes.length === 0) {
+        alert('沒有數據可以儲存');
+        return;
+    }
 
-            const data = {
-                orderNumber: currentOrderNumber,
-                barcodes: scannedCodes
-            };
+    const data = {
+        orderNumber: currentOrderNumber,
+        barcodes: scannedCodes
+    };
 
-            fetch('https://script.google.com/macros/s/AKfycbyl5-TZ5y6kM0KoE3x0IRnK1ZvBc1M2rD4U3pLysx4/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            }).then(response => {
-                if (response.ok) {
-                    alert('資料已成功儲存到Google Sheets。');
-                } else {
-                    throw new Error('儲存失敗');
-                }
-            }).catch(error => {
-                console.error('儲存資料錯誤:', error);
-                alert('儲存資料失敗。');
-            });
+    fetch('https://script.google.com/macros/s/AKfycbyl5-TZ5y6kM0KoE3x0IRnK1ZvBc1M2rD4U3pLysx4/exec', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(response => {
+        if (response.ok) {
+            alert('資料已成功儲存到Google Sheets。');
+            window.open('https://docs.google.com/spreadsheets/d/1ab4vj6tQ46VXq0nImEVCJbniFm6HFVaidqEj2wGyWQM/edit?usp=sharing', '_blank');
+        } else {
+            throw new Error('儲存失敗');
         }
+    }).catch(error => {
+        console.error('儲存資料錯誤:', error);
+        alert('儲存資料失敗。');
+    });
+}
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "scanner",
