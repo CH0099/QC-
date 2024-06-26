@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品條碼掃描器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #scanner {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 5px;
+            width: 100%;
+            max-width: 300px;
+        }
+        #scannedCodes {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>商品條碼掃描器</h1>
+    <input type="text" id="orderNumber" placeholder="輸入單號">
+    <div id="scanner"></div>
+    <div id="scannedCodes"></div>
+    <button onclick="completeOrder()">完成</button>
+    <button onclick="undoLastScan()">取消上一個掃瞄內容</button>
+    <button onclick="exitOrder()">退出單號</button>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        let scannedCodes = [];
+
+        function onScanSuccess(decodedText, decodedResult) {
+            scannedCodes.push(decodedText);
+            updateScannedCodesDisplay();
+        }
+
+        function onScanFailure(error) {
+            console.warn(`掃描錯誤: ${error}`);
+        }
+
+        function updateScannedCodesDisplay() {
+            const display = document.getElementById('scannedCodes');
+            display.innerHTML = '<h3>已掃瞄條碼:</h3>' + 
+                scannedCodes.map((code, index) => `<p>${index + 1}. ${code}</p>`).join('');
+        }
+
+        function completeOrder() {
+            const orderNumber = document.getElementById('orderNumber').value;
+            alert(`單號 ${orderNumber} 完成，共掃描 ${scannedCodes.length} 個條碼。`);
+            // 這裡可以添加將數據發送到服務器的代碼
+        }
+
+        function undoLastScan() {
+            if (scannedCodes.length > 0) {
+                scannedCodes.pop();
+                updateScannedCodesDisplay();
+            } else {
+                alert('沒有可取消的掃瞄內容');
+            }
+        }
+
+        function exitOrder() {
+            document.getElementById('orderNumber').value = '';
+            scannedCodes = [];
+            updateScannedCodesDisplay();
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "scanner",
+            { fps: 10, qrbox: {width: 250, height: 250} },
+            false
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    </script>
+</body>
+</html>
