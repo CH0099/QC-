@@ -118,6 +118,7 @@
         <div id="scanner"></div>
         <div id="scannedCodes"></div>
         <div class="button-group">
+            <button onclick="toggleScanMode()">切換模式</button>
             <button onclick="completeOrder()">完成</button>
             <button onclick="undoLastScan()">取消上一個掃瞄</button>
             <button onclick="exitOrder()">退出單號</button>
@@ -133,12 +134,14 @@
         let isScanningOrderNumber = true;
 
         function onScanSuccess(decodedText, decodedResult) {
-            if (isScanningOrderNumber) {
-                setOrderNumber(decodedText);
-            } else {
-                scannedCodes.push(decodedText);
-                updateScannedCodesDisplay();
-                updateLastScannedCode(decodedText);
+            if (confirm(`掃描到條碼: ${decodedText}\n是否記錄?`)) {
+                if (isScanningOrderNumber) {
+                    setOrderNumber(decodedText);
+                } else {
+                    scannedCodes.push(decodedText);
+                    updateScannedCodesDisplay();
+                    updateLastScannedCode(decodedText);
+                }
             }
         }
 
@@ -161,6 +164,11 @@
             document.getElementById('currentOrderNumber').innerText = `當前單號: ${currentOrderNumber}`;
             isScanningOrderNumber = false;
             document.getElementById('scanModeDisplay').innerText = '模式：掃描商品';
+        }
+
+        function toggleScanMode() {
+            isScanningOrderNumber = !isScanningOrderNumber;
+            document.getElementById('scanModeDisplay').innerText = isScanningOrderNumber ? '模式：掃描單號' : '模式：掃描商品';
         }
 
         function completeOrder() {
