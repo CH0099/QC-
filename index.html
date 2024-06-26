@@ -6,43 +6,90 @@
     <title>商品條碼掃描器</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
         }
         #scanner {
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 300px;
+            margin: 20px auto;
         }
         input, button {
-            margin: 10px 0;
-            padding: 5px;
+            display: block;
             width: 100%;
-            max-width: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input {
+            font-size: 16px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
         }
         #scannedCodes {
             margin-top: 20px;
             text-align: left;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        #scannedCodes h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        #scannedCodes p {
+            margin: 5px 0;
+        }
+        #currentOrderNumber {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>商品條碼掃描器</h1>
-    <input type="text" id="orderNumber" placeholder="輸入單號">
-    <div id="scanner"></div>
-    <div id="scannedCodes"></div>
-    <button onclick="completeOrder()">完成</button>
-    <button onclick="undoLastScan()">取消上一個掃瞄內容</button>
-    <button onclick="exitOrder()">退出單號</button>
+    <div class="container">
+        <h1>商品條碼掃描器</h1>
+        <input type="text" id="orderNumber" placeholder="輸入單號">
+        <button onclick="setOrderNumber()">設置單號</button>
+        <div id="currentOrderNumber"></div>
+        <div id="scanner"></div>
+        <div id="scannedCodes"></div>
+        <button onclick="completeOrder()">完成</button>
+        <button onclick="undoLastScan()" style="background-color: #e74c3c;">取消上一個掃瞄內容</button>
+        <button onclick="exitOrder()" style="background-color: #95a5a6;">退出單號</button>
+    </div>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         let scannedCodes = [];
+        let currentOrderNumber = '';
 
         function onScanSuccess(decodedText, decodedResult) {
             scannedCodes.push(decodedText);
@@ -59,10 +106,18 @@
                 scannedCodes.map((code, index) => `<p>${index + 1}. ${code}</p>`).join('');
         }
 
+        function setOrderNumber() {
+            currentOrderNumber = document.getElementById('orderNumber').value;
+            document.getElementById('currentOrderNumber').innerText = `當前單號: ${currentOrderNumber}`;
+            document.getElementById('orderNumber').value = '';
+        }
+
         function completeOrder() {
-            const orderNumber = document.getElementById('orderNumber').value;
-            alert(`單號 ${orderNumber} 完成，共掃描 ${scannedCodes.length} 個條碼。`);
-            // 這裡可以添加將數據發送到服務器的代碼
+            if (!currentOrderNumber) {
+                alert('請先設置單號');
+                return;
+            }
+            alert(`單號 ${currentOrderNumber} 完成，共掃描 ${scannedCodes.length} 個條碼。`);
         }
 
         function undoLastScan() {
@@ -75,6 +130,8 @@
         }
 
         function exitOrder() {
+            currentOrderNumber = '';
+            document.getElementById('currentOrderNumber').innerText = '';
             document.getElementById('orderNumber').value = '';
             scannedCodes = [];
             updateScannedCodesDisplay();
