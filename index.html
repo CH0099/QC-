@@ -166,13 +166,13 @@
         function switchToOrderNumberMode() {
             isScanningOrderNumber = true;
             document.getElementById('scanModeDisplay').innerText = '模式：掃描單號';
-            document.getElementById('scanOrderNumberBtn').style.backgroundColor = var(--primary-color);
+            document.getElementById('scanOrderNumberBtn').style.backgroundColor = 'var(--primary-color)';
         }
 
         function switchToProductMode() {
             isScanningOrderNumber = false;
             document.getElementById('scanModeDisplay').innerText = '模式：掃描商品';
-            document.getElementById('scanOrderNumberBtn').style.backgroundColor = var(--warning-color);
+            document.getElementById('scanOrderNumberBtn').style.backgroundColor = 'var(--warning-color)';
         }
 
         function completeOrder() {
@@ -223,9 +223,10 @@
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "scanner",
-            { fps: 10, qrbox: {width: 250, height: 250} },
-            false
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            { rememberLastUsedCamera: true }
         );
+
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     </script>
 </body>
