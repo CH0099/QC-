@@ -80,7 +80,7 @@
             background-color: white;
             border-radius: 4px;
         }
-        #currentOrderNumber, #lastScannedCode {
+        #currentOrderNumber {
             font-weight: bold;
             font-size: 18px;
             margin: 15px 0;
@@ -114,7 +114,6 @@
         <h1>商品條碼掃描器</h1>
         <h2 id="scanModeDisplay">模式：掃描單號</h2>
         <div id="currentOrderNumber"></div>
-        <div id="lastScannedCode"></div>
         <div id="scanner"></div>
         <div id="scannedCodes"></div>
         <div class="button-group">
@@ -142,7 +141,6 @@
             } else {
                 scannedCodes.push(decodedText);
                 updateScannedCodesDisplay();
-                updateLastScannedCode(decodedText);
             }
 
             showAlertAndResume(`掃描成功: ${decodedText}`);
@@ -163,10 +161,6 @@
             const display = document.getElementById('scannedCodes');
             display.innerHTML = '<h3>已掃瞄條碼:</h3>' + 
                 scannedCodes.map((code, index) => `<p>${index + 1}. ${code}</p>`).join('');
-        }
-
-        function updateLastScannedCode(code) {
-            document.getElementById('lastScannedCode').innerText = `最後掃描的條碼: ${code}`;
         }
 
         function setOrderNumber(number) {
@@ -203,9 +197,8 @@
                 return;
             }
 
-            let copyText = `單號\t條碼\n` +
-                `${currentOrderNumber}\t` + 
-                scannedCodes.map(code => `條碼\t${code}`).join('\n');
+            let copyText = `彙總單號\t條碼\n${currentOrderNumber}\t${scannedCodes[0]}\n` +
+                scannedCodes.slice(1).map(code => `\t${code}`).join('\n');
 
             navigator.clipboard.writeText(copyText).then(function() {
                 alert('數據已複製到剪貼板。請在Google Sheets中選擇A和B欄位後粘貼。');
@@ -218,7 +211,6 @@
             if (scannedCodes.length > 0) {
                 scannedCodes.pop();
                 updateScannedCodesDisplay();
-                updateLastScannedCode(scannedCodes.length > 0 ? scannedCodes[scannedCodes.length - 1] : '無');
             } else {
                 alert('沒有可取消的掃瞄內容');
             }
