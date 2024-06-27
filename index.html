@@ -197,8 +197,8 @@
                 return;
             }
 
-            let copyText = `彙總單號\t條碼\n${currentOrderNumber}\t${scannedCodes[0]}\n` +
-                scannedCodes.slice(1).map(code => `\t${code}`).join('\n');
+            let copyText = `彙總單號\n${currentOrderNumber}\n` +
+                scannedCodes.map(code => `${code}`).join('\n');
 
             navigator.clipboard.writeText(copyText).then(function() {
                 alert('數據已複製到剪貼板。請在Google Sheets中選擇A和B欄位後粘貼。');
